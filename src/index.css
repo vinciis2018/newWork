@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .light {
+    color-scheme: light;
+    --background: #FFFFFF;
+    --background-alt: #F3F4F6;
+    --text: #000000;
+    --text-muted: #6B7280;
+    --primary: #3B82F6;
+    --primary-hover: #2563EB;
+    --accent: #10B981;
+    --error: #EF4444;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --background: black;
+    --background-alt: #2D2D2D;
+    --text: #FFFFFF;
+    --text-muted: #9CA3AF;
+    --primary: #1D4ED8;
+    --primary-hover: #2563EB;
+    --accent: #059669;
+    --error: #DC2626;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text);
+  }
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.dark {
+  --foreground: #FFFFFF;
+  background: black;
+  --primary: #1D4ED8;
+  --primary-hover: #3B82F6;
+}
+
+.light {
+  --foreground: #000000;
+  background: #FFFFFF;
+  --primary: #3B82F6;
+  --primary-hover: #1D4ED8;
+}
