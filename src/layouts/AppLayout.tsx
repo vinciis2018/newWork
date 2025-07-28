@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
+import { useDeviceType } from '../hooks/useDevice';
 
 interface FullLayoutProps {
   children: React.ReactNode;
 }
 
 export function FullLayout({ children }: FullLayoutProps) {
+  const { isMobile } = useDeviceType();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -21,27 +24,27 @@ export function FullLayout({ children }: FullLayoutProps) {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)]">
       {/* Fixed Header */}
-      <Header onMenuClick={toggleSidebar} />
+      <Header onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isMobile={isMobile} />
       
-      <div className="flex flex-1 overflow-hidden py-16">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        {isSidebarOpen && (
+        {/* {!isMobile && ( */}
           <div 
-            className={`
-              fixed lg:sticky top-16 bottom-0 left-0 w-64 
+            className={` mb-16
+              fixed lg:sticky top-16 bottom-0 left-0
               bg-[var(--background-alt)] z-10 
-              transition-all duration-300 ease-in-out
               ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              transition-all duration-300 ease-in-out
               lg:block
             `}
           >
-            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} isMobile={isMobile} setIsOpen={setIsSidebarOpen} />
           </div>
-        )}
+        {/* )} */}
         
         
         {/* Main Content */}
-        <div className={`border border-white
+        <div className={`
           flex-1 flex flex-col overflow-hidden 
           transition-all duration-300
         `}>
