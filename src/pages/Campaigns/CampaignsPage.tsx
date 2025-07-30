@@ -49,8 +49,6 @@ export function CampaignsPage() {
     }
   }, [status, campaigns, error]);
 
-  console.log(campaigns);
-
   return (
     <FullLayout>
       <section className="py-4 px-4 bg-[var(--background-alt)]">

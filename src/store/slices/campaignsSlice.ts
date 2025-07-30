@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
-import type { Campaign, MediaFile } from '../../types';
+import type { Campaign } from '../../types';
 
 interface AxiosErrorResponse {
   message?: string;
@@ -119,11 +119,11 @@ export const updateCampaign = createAsyncThunk<Campaign, { id: string; data: Par
 
 export const uploadCampaignLogsExcel = createAsyncThunk<
   { success: boolean; message: string; processedFiles?: number },
-  { campaignId: string; files: File[] },
+  { siteId: string, campaignId: string; files: File[] },
   { rejectValue: string }
 >(
   'campaigns/uploadExcel',
-  async ({ campaignId, files }, { rejectWithValue }) => {
+  async ({ siteId, campaignId, files }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
       
@@ -134,6 +134,8 @@ export const uploadCampaignLogsExcel = createAsyncThunk<
       
       // Add campaignId as a regular form field
       formData.append('campaignId', campaignId);
+      // Add siteId as a regular form field
+      formData.append('siteId', siteId);
 
       const response = await axios.put<ApiResponse<{ success: boolean; message: string; processedFiles?: number }>>(
         `http://localhost:3333/api/v1/campaigns/${campaignId}/upload-excel`,
@@ -165,15 +167,32 @@ export const uploadCampaignLogsExcel = createAsyncThunk<
   }
 );
 
-export const uploadCampaignMonitoringMedia = createAsyncThunk<MediaFile[], { campaignId: string; files: FormData }, { rejectValue: string }>(
+export const uploadCampaignMonitoringMedia = createAsyncThunk<Campaign, { campaignId: string; siteId: string; files: FormData }, { rejectValue: string }>(
   'campaigns/uploadMonitoringMedia',
-  async ({ campaignId, files }, { rejectWithValue }) => {
+  async ({ campaignId, siteId, files }, { rejectWithValue }) => {
     try {
-      const response = await axios.post<{ data: MediaFile[] }>(`/api/v1/campaigns/${campaignId}/monitoring-media`, files, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+
+      const formData = new FormData();
+      
+      // Append all files with the field name 'files' as expected by multer
+      files.forEach((file) => {
+        formData.append('media', file); // Using 'files' as the field name
       });
+      
+      // Add campaignId as a regular form field
+      formData.append('campaignId', campaignId);
+      // Add siteId as a regular form field
+      formData.append('siteId', siteId);
+
+      const response = await axios.put<{ data: Campaign }>(
+        `http://localhost:3333/api/v1/campaigns/${campaignId}/monitoring-media`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       return response.data.data;
     } catch (error) {
       const err = error as AxiosErrorWithResponse;
@@ -200,6 +219,18 @@ const campaignsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload || 'Failed to create campaign';
       })
+       // get Campaigns
+       .addCase(getCampaigns.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(getCampaigns.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.campaigns = action.payload;
+      })
+      .addCase(getCampaigns.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload || 'Failed to fetch campaigns';
+      })
       
       // Upload Media
       .addCase(uploadCampaignMonitoringMedia.pending, (state) => {
@@ -208,12 +239,7 @@ const campaignsSlice = createSlice({
       })
       .addCase(uploadCampaignMonitoringMedia.fulfilled, (state, action) => {
         state.uploadStatus = 'succeeded';
-        if (state.campaign) {
-          state.campaign.mediaFiles = [
-            ...(state.campaign.mediaFiles || []),
-            ...action.payload
-          ];
-        }
+        state.campaign = action.payload;
       })
       .addCase(uploadCampaignMonitoringMedia.rejected, (state, action) => {
         state.uploadStatus = 'failed';

@@ -49,7 +49,7 @@ export default function MediaUploadPopup({ isOpen, onClose, campaignId, siteId, 
     });
 
     try {
-      await dispatch(uploadCampaignMonitoringMedia({ campaignId, files: formData })).unwrap();
+      await dispatch(uploadCampaignMonitoringMedia({ campaignId, siteId: siteId!, files: formData })).unwrap();
       onUploadSuccess();
       setFiles([]);
       onClose();

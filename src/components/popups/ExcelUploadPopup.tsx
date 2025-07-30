@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useAppDispatch } from '../../store';
+import { uploadCampaignLogsExcel } from '../../store/slices/campaignsSlice';
 // useAppDispatch removed as it's not being used
 
 interface ExcelUploadPopupProps {
@@ -18,6 +20,8 @@ export default function ExcelUploadPopup({ isOpen, onClose, campaignId, siteId, 
   const [success, setSuccess] = useState<string | null>(null);
   // Remove unused dispatch since we're using fetch directly
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const dispatch = useAppDispatch();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -83,19 +87,13 @@ export default function ExcelUploadPopup({ isOpen, onClose, campaignId, siteId, 
       formData.append('files', file);
     });
 
+    console.log(siteId);
     if (siteId) {
       formData.append('siteId', siteId);
     }
 
     try {
-      const response = await fetch(`/api/v1/campaigns/${campaignId}/excel`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload Excel file');
-      }
+      dispatch(uploadCampaignLogsExcel({ siteId: siteId!, campaignId, files }));
 
       setSuccess('Excel file uploaded successfully!');
       setFiles([]);

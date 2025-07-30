@@ -29,7 +29,8 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-{/* Upgrade to ProtectedRoute */}
+          
+          {/* Upgrade to ProtectedRoute */}
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
 
