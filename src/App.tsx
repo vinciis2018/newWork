@@ -3,11 +3,9 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ThemeProvider } from './context/ContextProvider/ThemeProvider';
-// import { useTheme } from './hooks/useTheme';
-import { DashboardPage, HomePage, LoginPage } from './pages';
+import { CampaignDetailsPage, CampaignsPage, DashboardPage, HomePage, LandingPage, LoginPage, NotFoundPage, SiteDetailsPage, SitesPage } from './pages';
 
 function AppContent() {
-  // const { theme } = useTheme();
   
   return (
     <div className={`min-h-screen`}>
@@ -19,6 +17,9 @@ function AppContent() {
           {/* Public Route */}
           <Route path="/" element={<HomePage />} />
 
+          {/* Public Route */}
+          <Route path="/landing" element={<LandingPage />} />
+
           {/* Protected Route */}
           <Route
             path="/dashboard"
@@ -28,6 +29,16 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+{/* Upgrade to ProtectedRoute */}
+          <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
+
+          <Route path="/sites" element={<SitesPage />} />
+          <Route path="/sites/:id" element={<SiteDetailsPage />} />
+
+          {/* No Route */}
+          <Route path="*" element={<NotFoundPage />} />
+
         </Routes>
       </BrowserRouter>
     </div>

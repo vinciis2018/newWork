@@ -3,8 +3,9 @@ import { useTheme } from '../hooks/useTheme';
 import HomeIcon from '@mui/icons-material/Home';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import { useEffect, useState } from 'react';
-
+import WebAssetIcon from '@mui/icons-material/WebAsset';
 interface SidebarProps {
   isMobile: boolean;
   isOpen: boolean;
@@ -80,6 +81,38 @@ export function Sidebar({ isOpen = false, onClose, isMobile = false, setIsOpen }
                 >
                   <DashboardIcon />
                   {shouldShowText && <span className="truncate">Dashboard</span>}
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/campaigns"
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 p-3 transition-colors ${
+                      isActive 
+                        ? `border-l-2 rounded-l-lg bg-[var(--primary)] font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`
+                        : `rounded-lg ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`
+                    }`
+                  }
+                  onClick={onClose}
+                >
+                  <CampaignIcon />
+                  {shouldShowText && <span className="truncate">Campaigns</span>}
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/sites"
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 p-3 transition-colors ${
+                      isActive 
+                        ? `border-l-2 rounded-l-lg bg-[var(--primary)] font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`
+                        : `rounded-lg ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`
+                    }`
+                  }
+                  onClick={onClose}
+                >
+                  <WebAssetIcon />
+                  {shouldShowText && <span className="truncate">Sites</span>}
                 </NavLink>
               </li>
               <li>
