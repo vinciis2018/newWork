@@ -15,10 +15,8 @@ export function CampaignsPage() {
   const { campaigns, status, error } = useAppSelector((state: RootState) => state.campaigns);
 
   useEffect(() => {
-    if (status === 'idle') {
       dispatch(getCampaigns());
-    }
-  }, [status, dispatch]);
+  }, [dispatch]);
 
   const handleCreateCampaign = async (campaignData: Omit<Campaign, '_id' | 'createdAt' | '__v' | 'monitoring'>) => {
     try {

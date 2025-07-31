@@ -119,30 +119,23 @@ export const updateCampaign = createAsyncThunk<Campaign, { id: string; data: Par
 
 export const uploadCampaignLogsExcel = createAsyncThunk<
   { success: boolean; message: string; processedFiles?: number },
-  { siteId: string, campaignId: string; files: File[] },
+  { siteId: string, campaignId: string; files: { fileName: string; url: string }[] },
   { rejectValue: string }
 >(
   'campaigns/uploadExcel',
   async ({ siteId, campaignId, files }, { rejectWithValue }) => {
     try {
-      const formData = new FormData();
-      
-      // Append all files with the field name 'files' as expected by multer
-      files.forEach((file) => {
-        formData.append('files', file); // Using 'files' as the field name
-      });
-      
-      // Add campaignId as a regular form field
-      formData.append('campaignId', campaignId);
-      // Add siteId as a regular form field
-      formData.append('siteId', siteId);
-
+      console.log('Uploading files:', files);
       const response = await axios.put<ApiResponse<{ success: boolean; message: string; processedFiles?: number }>>(
-        `http://localhost:3333/api/v1/campaigns/${campaignId}/upload-excel`,
-        formData,
+        `http://localhost:3333/api/v1/campaigns/${campaignId}/${siteId}/upload-excel`,
+        {
+          siteId,
+          campaignId,
+          files
+        },
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -167,29 +160,38 @@ export const uploadCampaignLogsExcel = createAsyncThunk<
   }
 );
 
-export const uploadCampaignMonitoringMedia = createAsyncThunk<Campaign, { campaignId: string; siteId: string; files: FormData }, { rejectValue: string }>(
+export const uploadCampaignMonitoringMedia = createAsyncThunk<
+{ success: boolean; message: string; processedFiles?: number },
+{ siteId: string, campaignId: string; monitoringType: string; files: { fileName: string; url: string }[] },
+{ rejectValue: string }
+>(
   'campaigns/uploadMonitoringMedia',
-  async ({ campaignId, siteId, files }, { rejectWithValue }) => {
+  async ({ campaignId, siteId, monitoringType, files }, { rejectWithValue }) => {
     try {
 
-      const formData = new FormData();
+      // const formData = new FormData();
       
-      // Append all files with the field name 'files' as expected by multer
-      files.forEach((file) => {
-        formData.append('media', file); // Using 'files' as the field name
-      });
+      // // Append all files with the field name 'files' as expected by multer
+      // files.forEach((file) => {
+      //   formData.append('media', file); // Using 'files' as the field name
+      // });
       
-      // Add campaignId as a regular form field
-      formData.append('campaignId', campaignId);
-      // Add siteId as a regular form field
-      formData.append('siteId', siteId);
+      // // Add campaignId as a regular form field
+      // formData.append('campaignId', campaignId);
+      // // Add siteId as a regular form field
+      // formData.append('siteId', siteId);
 
-      const response = await axios.put<{ data: Campaign }>(
-        `http://localhost:3333/api/v1/campaigns/${campaignId}/monitoring-media`,
-        formData,
+      const response = await axios.put<ApiResponse<{ success: boolean; message: string; processedFiles?: number }>>(
+        `http://localhost:3333/api/v1/campaigns/${campaignId}/${siteId}/monitoring-media`,
+        {
+          siteId,
+          campaignId,
+          monitoringType,
+          files
+        },
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -234,16 +236,16 @@ const campaignsSlice = createSlice({
       
       // Upload Media
       .addCase(uploadCampaignMonitoringMedia.pending, (state) => {
-        state.uploadStatus = 'loading';
-        state.uploadError = null;
+        state.status = 'loading';
+        state.error = null;
       })
-      .addCase(uploadCampaignMonitoringMedia.fulfilled, (state, action) => {
-        state.uploadStatus = 'succeeded';
-        state.campaign = action.payload;
+      .addCase(uploadCampaignMonitoringMedia.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
       })
       .addCase(uploadCampaignMonitoringMedia.rejected, (state, action) => {
-        state.uploadStatus = 'failed';
-        state.uploadError = action.payload || 'Failed to upload media';
+        state.status = 'failed';
+        state.error = action.payload || 'Failed to upload media';
       })
       .addCase(getCampaignDetails.pending, (state) => {
         state.status = 'loading';

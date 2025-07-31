@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useAppDispatch } from '../../store';
 import { uploadCampaignLogsExcel } from '../../store/slices/campaignsSlice';
+import { getS3UploadUrl, saveDataOnS3 } from '../../utilities/awsUtils';
 // useAppDispatch removed as it's not being used
 
 interface ExcelUploadPopupProps {
@@ -22,7 +23,7 @@ export default function ExcelUploadPopup({ isOpen, onClose, campaignId, siteId, 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useAppDispatch();
-
+console.log(campaignId);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
@@ -82,18 +83,29 @@ export default function ExcelUploadPopup({ isOpen, onClose, campaignId, siteId, 
     setError(null);
     setSuccess(null);
 
-    const formData = new FormData();
-    files.forEach(file => {
-      formData.append('files', file);
-    });
-
-    console.log(siteId);
-    if (siteId) {
-      formData.append('siteId', siteId);
-    }
-
     try {
-      dispatch(uploadCampaignLogsExcel({ siteId: siteId!, campaignId, files }));
+      // Process all files in parallel and wait for all to complete
+      const fileUploadPromises = files.map(async (file) => {
+        const s3Url = await getS3UploadUrl(file.type, file.name);
+        console.log('Uploading file:', file.name);
+        await saveDataOnS3(s3Url.data.uploadUrl, file);
+        return {
+          fileType: file.type,
+          fileName: file.name,
+          url: s3Url.data.url
+        };
+      });
+
+      // Wait for all file uploads to complete
+      const fileUrls = await Promise.all(fileUploadPromises);
+      console.log('All files uploaded successfully:', fileUrls);
+
+      // Only dispatch after all files are uploaded
+      await dispatch(uploadCampaignLogsExcel({ 
+        siteId: siteId!, 
+        campaignId, 
+        files: fileUrls 
+      }));
 
       setSuccess('Excel file uploaded successfully!');
       setFiles([]);

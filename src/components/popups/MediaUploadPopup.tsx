@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAppDispatch } from '../../store';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { uploadCampaignMonitoringMedia } from '../../store/slices/campaignsSlice';
+import { getS3UploadUrl, saveDataOnS3 } from '../../utilities/awsUtils';
 
 interface MediaUploadPopupProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export default function MediaUploadPopup({ isOpen, onClose, campaignId, siteId, 
   const [files, setFiles] = useState<File[]>([]);
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [isUploading, setIsUploading] = useState(false);
+  const [monitoringType, setMonitoringType] = useState("day");
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,20 +41,29 @@ export default function MediaUploadPopup({ isOpen, onClose, campaignId, siteId, 
     setIsUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append('date', date);
-    if (siteId) {
-      formData.append('siteId', siteId);
-    }
-    files.forEach(file => {
-      formData.append('media', file);
+ // Process all files in parallel and wait for all to complete
+    const fileUploadPromises = files.map(async (file) => {
+      const s3Url = await getS3UploadUrl(file.type, file.name);
+      console.log('Uploading file:', file.name);
+      await saveDataOnS3(s3Url.data.uploadUrl, file);
+      return {
+        fileType: file.type,
+        fileName: file.name,
+        url: s3Url.data.url,
+      };
     });
 
+    // Wait for all file uploads to complete
+    const fileUrls = await Promise.all(fileUploadPromises);
+    console.log('All files uploaded successfully:', fileUrls);
     try {
-      await dispatch(uploadCampaignMonitoringMedia({ campaignId, siteId: siteId!, files: formData })).unwrap();
+      await dispatch(uploadCampaignMonitoringMedia({ campaignId, siteId: siteId!, monitoringType: monitoringType,  files: fileUrls }));
       onUploadSuccess();
       setFiles([]);
-      onClose();
+      // Close the popup after a short delay
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (err) {
       console.error('Error uploading media:', err);
       setError('Failed to upload media. Please try again.');
@@ -81,19 +92,36 @@ export default function MediaUploadPopup({ isOpen, onClose, campaignId, siteId, 
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
-            <div>
-              <label htmlFor="media-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date
-              </label>
-              <input
-                type="date"
-                id="media-date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                required
-              />
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <label htmlFor="media-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="media-date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="monitoring-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Monitoring Type
+                </label>
+                <select
+                  id="monitoring-type"
+                  value={monitoringType}
+                  onChange={(e) => setMonitoringType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="day">Day</option>
+                  <option value="night">Night</option>
+                </select>
+              </div>
             </div>
+            
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
               <input
                 type="file"
