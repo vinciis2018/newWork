@@ -8,6 +8,7 @@ export { NotFoundPage } from './NotFoundPage';
 
 export { CampaignsPage } from './Campaigns/CampaignsPage';
 export { CampaignDetailsPage } from './CampaignDetails/CampaignDetailsPage';
+export { CampaignAnalyticsPage } from './CampaignDetails/CampaignAnalyticsPage';
 
 export { SitesPage } from './Sites/SitesPage';
 export { SiteDetailsPage } from './SiteDetails/SiteDetailsPage';

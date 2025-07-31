@@ -1,5 +1,29 @@
 // Shared types across the application
 
+
+export interface ExcelFile {
+  originalName: string;
+  url: string;
+  uploadedAt: string;
+}
+
+export interface MediaFile {
+  _id: string;
+  originalName: string;
+  filename: string;
+  mimetype: string;
+  path: string;
+  size: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MonitoringData {
+  date: string;
+  monitoringMedia: [MediaFile];
+  uploadedVideo: string;
+}
+
 export interface SiteLocation {
   address: string;
   latitude: string;
@@ -18,27 +42,10 @@ export interface Site {
   commonNames?: string[];
   siteImages?: string[];
   siteType?: string;
-  createdAt?: string;
-  __v?: number;
-  monitoring?: boolean;
+  monitoringData?: MonitoringData[];
+  excelFiles?: ExcelFile[];
 }
 
-export interface ExcelFile {
-  originalName: string;
-  url: string;
-  uploadedAt: string;
-}
-
-export interface MediaFile {
-  _id: string;
-  originalName: string;
-  filename: string;
-  mimetype: string;
-  path: string;
-  size: number;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface Campaign {
   _id: string;
@@ -76,4 +83,46 @@ export interface SiteFormData {
   siteImages: string[];
   siteType: string;
   siteLocation: SiteLocation;
+}
+
+
+
+// excel utils
+
+export type ExcelValue = string | number | boolean | Date | null;
+
+export interface ExcelData {
+  headers: string[];
+  rows: ExcelValue[][];
+}
+
+export interface Sheet {
+  sheetName: string;
+  headers: string[];
+  rows: ExcelValue[][];
+}
+
+
+export interface ExcelStats {
+  rowCount: number;
+  columnCount: number;
+  columnNames: string[];
+  firstRow: ExcelValue[] | null;
+  lastRow: ExcelValue[] | null;
+}
+
+export interface SortConfig {
+  key: string;
+  direction: 'ascending' | 'descending';
+}
+
+// Interface for the parsed Excel result including both data and stats
+export interface ParsedExcelResult {
+    data: ExcelData;
+    stats: ExcelStats;
+}
+
+// Error type for parsing issues
+export interface ExcelParseError {
+    error: string;
 }

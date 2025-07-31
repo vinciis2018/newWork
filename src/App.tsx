@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ThemeProvider } from './context/ContextProvider/ThemeProvider';
-import { CampaignDetailsPage, CampaignsPage, DashboardPage, HomePage, LandingPage, LoginPage, NotFoundPage, SiteDetailsPage, SitesPage } from './pages';
+import { CampaignAnalyticsPage, CampaignDetailsPage, CampaignsPage, DashboardPage, HomePage, LandingPage, LoginPage, NotFoundPage, SiteDetailsPage, SitesPage } from './pages';
 
 function AppContent() {
   
@@ -29,10 +29,12 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          
+
           {/* Upgrade to ProtectedRoute */}
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailsPage />} />
+          <Route path="/campaigns/analytics/:id/:siteId?" element={<CampaignAnalyticsPage />} />
+
 
           <Route path="/sites" element={<SitesPage />} />
           <Route path="/sites/:id" element={<SiteDetailsPage />} />
