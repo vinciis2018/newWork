@@ -168,19 +168,6 @@ export const uploadCampaignMonitoringMedia = createAsyncThunk<
   'campaigns/uploadMonitoringMedia',
   async ({ campaignId, siteId, monitoringType, files }, { rejectWithValue }) => {
     try {
-
-      // const formData = new FormData();
-      
-      // // Append all files with the field name 'files' as expected by multer
-      // files.forEach((file) => {
-      //   formData.append('media', file); // Using 'files' as the field name
-      // });
-      
-      // // Add campaignId as a regular form field
-      // formData.append('campaignId', campaignId);
-      // // Add siteId as a regular form field
-      // formData.append('siteId', siteId);
-
       const response = await axios.put<ApiResponse<{ success: boolean; message: string; processedFiles?: number }>>(
         `http://localhost:3333/api/v1/campaigns/${campaignId}/${siteId}/monitoring-media`,
         {

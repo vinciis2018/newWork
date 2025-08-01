@@ -35,10 +35,9 @@ export function CampaignAnalyticsPage() {
     if (!id || !siteId) {
       return;
     }
-    
     try {
       await dispatch(getAnalyticsFromExcel({ id, siteId }));
-      await dispatch (analyseMonitoringData({ id, siteId }));
+      await dispatch(analyseMonitoringData({ id, siteId }));
     } catch (err) {
       console.error('Error loading analytics:', err);
     }

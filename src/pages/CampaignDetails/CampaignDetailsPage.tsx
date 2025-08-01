@@ -106,7 +106,6 @@ export function CampaignDetailsPage() {
               <PencilIcon className="h-4 w-4" />
               Edit Campaign
             </button>
-            <button type="button" onClick={() => navigate(`/campaigns/analytics/${campaign._id}`)}>View Analytics</button>
           </div>
         </div>
         
