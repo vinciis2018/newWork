@@ -57,7 +57,6 @@ export function CampaignForm({ isOpen, onClose, onSubmit, isLoading, initialData
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    console.log(name, value)
     if (name === 'sites') return;
     
     // For non-array fields
@@ -74,18 +73,16 @@ export function CampaignForm({ isOpen, onClose, onSubmit, isLoading, initialData
 
       setFormData(prev => ({
         ...prev,
-        sites: [...prev.sites, site]
+        sites: [...prev.sites, {...site, siteId: site._id}]
       }));
-      
+
       // Update selectedSites for display
       setSelectedSites(prev => [...prev, site]);
     }
-    console.log(formData);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
     onSubmit(formData);
   };
 

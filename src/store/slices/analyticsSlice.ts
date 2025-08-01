@@ -33,7 +33,7 @@ export const getAnalyticsFromExcel = createAsyncThunk<AnalyticsResponse, { id: s
   'analytics/getAnalyticsFromExcel',
   async ({ id, siteId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get<AnalyticsResponse>(`http://localhost:3333/api/v1/analytics/getAnalyticsFromExcel/${id}/${siteId}`);
+      const response = await axios.post<AnalyticsResponse>(`http://127.0.0.1:8000/api/v1/exceldata/analyse-excel-data?id=${id}&site_id=${siteId}`);
       // The response.data will be of type SitesResponse
       return response.data;
     } catch (error) {
@@ -50,7 +50,8 @@ export const analyseMonitoringData = createAsyncThunk<AnalyticsResponse, { id: s
   'analytics/analyseMonitoringData',
   async ({ id, siteId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get<AnalyticsResponse>(`http://localhost:3333/api/v1/analytics/analyseMonitoringData/${id}/${siteId}`);
+      console.log(id, siteId)
+      const response = await axios.get<AnalyticsResponse>(`http://127.0.0.1:8000/api/v1/metadata/analyse-monitoring-data?id=${id}&site_id=${siteId}`);
       // The response.data will be of type SitesResponse
       return response.data;
     } catch (error) {

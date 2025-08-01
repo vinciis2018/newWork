@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
-import type { Site } from '../../types';
+import type { Site, SiteLocation } from '../../types';
 
 interface CreateSitePayload {
   siteName: string;
-  siteLocation?: string;
+  siteLocation: SiteLocation;
   commonNames?: string[];
   siteImages?: string[];
   siteType?: string;
@@ -31,7 +31,7 @@ interface ApiResponse<T> {
 
 interface CreateSitePayload {
   siteName: string;
-  siteLocation?: string;
+  siteLocation: SiteLocation;
   commonNames?: string[];
   siteImages?: string[];
   siteType?: string;
@@ -41,9 +41,10 @@ export const createSite = createAsyncThunk<Site, CreateSitePayload, { rejectValu
   'sites/createSite',
   async (siteData, { rejectWithValue }) => {
     try {
+      console.log(siteData)
       const response = await axios.post<Site>('http://localhost:3333/api/v1/sites/create', {
         siteName: siteData.siteName,
-        siteLocation: siteData.siteLocation || '',
+        siteLocation: siteData.siteLocation || {address: "", latitude: "", longitude: "", city: "", state: "", country: "", zipCode: ""},
         commonNames: siteData.commonNames || [],
         siteImages: siteData.siteImages || [],
         siteType: siteData.siteType || 'dooh'

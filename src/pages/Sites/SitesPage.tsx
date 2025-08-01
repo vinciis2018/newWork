@@ -23,8 +23,6 @@ export function SitesPage() {
   const handleCreateSite = async (siteData: SiteFormData) => {
     try {
       console.log('Creating site:', siteData);
-      // Convert SiteLocation to string for the API
-      const siteLocationString = siteData.siteLocation?.address || '';
       
       // Close the form
       setIsFormOpen(false);
@@ -32,7 +30,7 @@ export function SitesPage() {
       // Dispatch the create action with the transformed data
       await dispatch(createSite({
         siteName: siteData.siteName,
-        siteLocation: siteLocationString,
+        siteLocation: siteData.siteLocation,
         commonNames: siteData.commonNames,
         siteImages: siteData.siteImages,
         siteType: siteData.siteType

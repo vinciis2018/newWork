@@ -162,16 +162,17 @@ export const uploadCampaignLogsExcel = createAsyncThunk<
 
 export const uploadCampaignMonitoringMedia = createAsyncThunk<
 { success: boolean; message: string; processedFiles?: number },
-{ siteId: string, campaignId: string; monitoringType: string; files: { fileName: string; url: string }[] },
+{ siteId: string, campaignId: string; monitoringType: string; date: string; files: { fileName: string; url: string }[] },
 { rejectValue: string }
 >(
   'campaigns/uploadMonitoringMedia',
-  async ({ campaignId, siteId, monitoringType, files }, { rejectWithValue }) => {
+  async ({ campaignId, siteId, monitoringType, date, files }, { rejectWithValue }) => {
     try {
       const response = await axios.put<ApiResponse<{ success: boolean; message: string; processedFiles?: number }>>(
         `http://localhost:3333/api/v1/campaigns/${campaignId}/${siteId}/monitoring-media`,
         {
           siteId,
+          date,
           campaignId,
           monitoringType,
           files

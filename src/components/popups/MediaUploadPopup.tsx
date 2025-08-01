@@ -57,7 +57,7 @@ export default function MediaUploadPopup({ isOpen, onClose, campaignId, siteId, 
     const fileUrls = await Promise.all(fileUploadPromises);
     console.log('All files uploaded successfully:', fileUrls);
     try {
-      await dispatch(uploadCampaignMonitoringMedia({ campaignId, siteId: siteId!, monitoringType: monitoringType,  files: fileUrls }));
+      await dispatch(uploadCampaignMonitoringMedia({ campaignId, siteId: siteId!, monitoringType: monitoringType, date: date, files: fileUrls }));
       onUploadSuccess();
       setFiles([]);
       // Close the popup after a short delay
