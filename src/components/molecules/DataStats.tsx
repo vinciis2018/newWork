@@ -17,20 +17,32 @@ export function DataStats({ stats }: DataStatsProps) {
     );
   }
 
-  const { rowCount, columnCount, columnNames, firstRow, lastRow } = stats;
+  const {
+    // rowCount,
+    // columnCount,
+    columnNames,
+    firstRow,
+    lastRow
+  } = stats;
 
   return (
     <div className="">
       <h1 className="text-xl text-[var(--text)]">Summary Statistics</h1>
       <div className="space-y-6">
          <div className="grid grid-cols-2 gap-4 text-sm">
-            <p><span className="font-semibold text-foreground/80">Rows:</span> {rowCount.toLocaleString()}</p>
-            <p><span className="font-semibold text-foreground/80">Columns:</span> {columnCount.toLocaleString()}</p>
+            <p>
+              <span className="font-semibold text-foreground/80">Rows:</span> 
+              {/* {rowCount?.toLocaleString()} */}
+              </p>
+            <p>
+              <span className="font-semibold text-foreground/80">Columns: </span>
+              {/* {columnCount?.toLocaleString()} */}
+            </p>
          </div>
         <div>
           <h4 className="font-semibold mb-2 text-foreground/90">Column Names:</h4>
           <div className="flex flex-wrap gap-2">
-            {columnNames.map((name, index) => (
+            {columnNames?.map((name, index) => (
               <div key={index} className="font-normal glossy-effect">
                 {name || `Column ${index + 1}`}
               </div>

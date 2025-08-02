@@ -13,19 +13,23 @@ type ApiError = {
 
 interface AnalyticsResponse {
   success: boolean;
-  data: { data: ExcelData, stats: ExcelStats, sheets: Sheet[] }
+  excel_data: { data: ExcelData, stats: ExcelStats, sheets: Sheet[] }
+  monitoring_data: { data: ExcelData, stats: ExcelStats, sheets: Sheet[] }
 }
 
 interface AnalyticsState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  analytics: AnalyticsResponse | null;
+  excelAnalytics: AnalyticsResponse | null;
+  monitoringAnalytics: AnalyticsResponse | null;
+
 }
 
 const initialState: AnalyticsState = {
-  analytics: null,
+  excelAnalytics: null,
   status: 'idle',
   error: null,
+  monitoringAnalytics: null,
 };
 
 
@@ -77,7 +81,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(getAnalyticsFromExcel.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.analytics = action.payload;
+        state.excelAnalytics = action.payload;
       })
       .addCase(getAnalyticsFromExcel.rejected, (state, action) => {
         state.status = 'failed';
@@ -88,7 +92,7 @@ const analyticsSlice = createSlice({
       })
       .addCase(analyseMonitoringData.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.analytics = action.payload;
+        state.monitoringAnalytics = action.payload;
       })
       .addCase(analyseMonitoringData.rejected, (state, action) => {
         state.status = 'failed';

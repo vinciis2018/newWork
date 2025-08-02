@@ -14,8 +14,8 @@ export function CampaignAnalyticsPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { campaign, status } = useAppSelector((state) => state.campaigns);
-  const { analytics: excelAnalytics } = useAppSelector((state) => state.analytics);
-  const { analytics: monitoringAnalytics } = useAppSelector((state) => state.analytics);
+  const { excelAnalytics: excelAnalytics } = useAppSelector((state) => state.analytics);
+  const { monitoringAnalytics: monitoringAnalytics } = useAppSelector((state) => state.analytics);
 
 
   useEffect(() => {
@@ -44,13 +44,15 @@ export function CampaignAnalyticsPage() {
   };
 
   useEffect(() => {
-    if (excelAnalytics && excelAnalytics?.data) {
-      setExcelData(excelAnalytics?.data?.sheets);
-      setExcelStats(excelAnalytics?.data?.stats)
+    if (excelAnalytics && excelAnalytics?.excel_data) {
+      setExcelData(excelAnalytics?.excel_data?.sheets);
+      setExcelStats(excelAnalytics?.excel_data?.stats)
     }
   },[excelAnalytics]);
 
-  console.log("excelData", monitoringAnalytics)
+  console.log("monitoringData", monitoringAnalytics?.monitoring_data)
+  console.log("excelData", excelAnalytics?.excel_data)
+
   
   if (status === 'loading') {
     return (

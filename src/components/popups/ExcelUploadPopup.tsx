@@ -3,7 +3,7 @@ import { XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useAppDispatch } from '../../store';
 import { uploadCampaignLogsExcel } from '../../store/slices/campaignsSlice';
 import { getS3UploadUrl, saveDataOnS3 } from '../../utilities/awsUtils';
-// useAppDispatch removed as it's not being used
+import { readExcelHeaders } from '../../utilities/excelUtils';
 
 interface ExcelUploadPopupProps {
   isOpen: boolean;
@@ -23,10 +23,12 @@ export default function ExcelUploadPopup({ isOpen, onClose, campaignId, siteId, 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useAppDispatch();
-console.log(campaignId);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
+      const newFiles = Array.from(e.target.files).filter(file => 
+        ['.xlsx', '.xls', '.csv'].some(ext => file.name.toLowerCase().endsWith(ext))
+      );
+      
       setFiles(prevFiles => [...prevFiles, ...newFiles]);
       setError(null);
       setSuccess(null);
@@ -60,7 +62,7 @@ console.log(campaignId);
       const newFiles = Array.from(e.dataTransfer.files).filter(file => 
         ['.xlsx', '.xls', '.csv'].some(ext => file.name.toLowerCase().endsWith(ext))
       );
-      
+
       if (newFiles.length > 0) {
         setFiles(prevFiles => [...prevFiles, ...newFiles]);
         setError(null);
@@ -75,6 +77,8 @@ console.log(campaignId);
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (files.length === 0) return;
@@ -84,32 +88,57 @@ console.log(campaignId);
     setSuccess(null);
 
     try {
-      // Process all files in parallel and wait for all to complete
-      const fileUploadPromises = files.map(async (file) => {
-        const s3Url = await getS3UploadUrl(file.type, file.name);
-        console.log('Uploading file:', file.name);
-        await saveDataOnS3(s3Url.data.uploadUrl, file);
-        return {
-          fileType: file.type,
-          fileName: file.name,
-          url: s3Url.data.url
-        };
-      });
+      // Process all files in sequence to handle headers properly
+      const fileUploadResults = [];
+      
+      for (const file of files) {
+        try {
 
-      // Wait for all file uploads to complete
-      const fileUrls = await Promise.all(fileUploadPromises);
-      console.log('All files uploaded successfully:', fileUrls);
+          const headers = await readExcelHeaders(file);
+          console.log('Extracted headers from', file.name, ':', headers);
+          
+          // Upload the file to S3
+          const s3Url = await getS3UploadUrl(file.type, file.name);
+          await saveDataOnS3(s3Url.data.uploadUrl, file);
+          
+          fileUploadResults.push({
+            fileType: file.type,
+            fileName: file.name,
+            url: s3Url.data.url,
+            headers: headers
+          });
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+          throw error; // Re-throw to be caught by the outer try-catch
+        }
+      }
 
-      // Only dispatch after all files are uploaded
-      await dispatch(uploadCampaignLogsExcel({ 
-        siteId: siteId!, 
-        campaignId, 
-        files: fileUrls 
-      }));
-
-      setSuccess('Excel file uploaded successfully!');
-      setFiles([]);
-      onUploadSuccess?.();
+      // If we have a siteId, use the campaign logs upload endpoint
+      if (siteId) {
+        const response = await dispatch(uploadCampaignLogsExcel({
+          campaignId,
+          siteId,
+          files: fileUploadResults.map(file => ({
+            fileType: file.fileType,
+            fileName: file.fileName,
+            url: file.url,
+            headers: file.headers
+          }))
+        })).unwrap();
+        
+        if (response.success) {
+          setSuccess('Files uploaded successfully!');
+          setFiles([]);
+          if (onUploadSuccess) onUploadSuccess();
+        } else {
+          setError(response.message || 'Failed to upload files');
+        }
+      } else {
+        // Handle case where siteId is not provided (if needed)
+        setSuccess('Files processed successfully!');
+        setFiles([]);
+        if (onUploadSuccess) onUploadSuccess();
+      }
       // Close the popup after a short delay
       setTimeout(() => {
         onClose();

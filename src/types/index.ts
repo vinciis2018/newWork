@@ -89,7 +89,7 @@ export interface SiteFormData {
 
 // excel utils
 
-export type ExcelValue = string | number | boolean | Date | null;
+export type ExcelValue = string | number | boolean | Date | null | string;
 
 export interface ExcelData {
   headers: string[];
